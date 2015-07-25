@@ -18,7 +18,24 @@ var routes = Routes{
 				Table: Routes{
 					"hello": &Route{
 						Table: Routes{
-							"world": &Route{HandlerFunc: exampleHandler}}}}}},
+							"world": &Route{HandlerFunc: exampleHandler}}}}},
+			"really": &Route{
+				Table: Routes{
+					"deep": &Route{
+						Table: Routes{
+							"example": &Route{
+								Table: Routes{
+									"of": &Route{
+										Table: Routes{
+											"a": &Route{
+												Table: Routes{
+													"static": &Route{
+														Table: Routes{
+															"uri": &Route{
+																Table: Routes{
+																	"hello": &Route{
+																		Table: Routes{
+																			"dennis": &Route{HandlerFunc: exampleHandler}}}}}}}}}}}}}}}}}},
 		Funcs: Routes{
 			"day": &Route{Check: IsDay,
 				Table: Routes{

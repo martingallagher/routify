@@ -2,6 +2,7 @@ GET:
   schemas/$schema/archives/$year/$month/$day: exampleHandler
   $day/classes/go: exampleHandler
   testing/hello/world: exampleHandler
+  really/deep/example/of/a/static/uri/hello/dennis: exampleHandler
 
 params:
   year:   IsYear

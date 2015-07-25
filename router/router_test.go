@@ -68,3 +68,17 @@ func BenchmarkRouterStatic(b *testing.B) {
 		routes.Get(req)
 	}
 }
+
+func BenchmarkRouterStaticDeep(b *testing.B) {
+	req, err := http.NewRequest("GET", "/really/deep/example/of/a/static/uri/hello/dennis", nil)
+
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		routes.Get(req)
+	}
+}

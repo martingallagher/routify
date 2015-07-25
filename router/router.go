@@ -58,19 +58,33 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 
 	var (
 		route *Route
-		p     = Params{} // This is often a wasted allocation, solve...
+		p     Params
 	)
 
 	for {
 		i := strings.IndexByte(u, '/')
 
 		if i == -1 {
-			if v, exists := c.Table[u]; exists {
-				route = v
-			} else if v = checkTable(u, c.Table, p); v != nil {
-				route = v
-			} else if v = checkFuncs(u, c.Funcs, p); v != nil {
-				route = v
+			if n, exists := c.Table[u]; exists {
+				route = n
+
+				break
+			}
+
+			n, k, v := checkTable(u, c.Table)
+
+			if n == nil {
+				n, k, v = checkFuncs(u, c.Funcs)
+			}
+
+			if n != nil {
+				route = n
+
+				if p == nil {
+					p = Params{k: v}
+				} else {
+					p[k] = v
+				}
 			}
 
 			break
@@ -83,13 +97,24 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 			continue
 		}
 
-		if m := checkTable(u[:i], c.Table, p); m != nil {
-			c = m
-		} else if m = checkFuncs(u[:i], c.Funcs, p); m != nil {
-			c = m
-		} else {
+		n, k, v := checkTable(u[:i], c.Table)
+
+		if n == nil {
+			n, k, v = checkFuncs(u[:i], c.Funcs)
+		}
+
+		// Check once more...
+		if n == nil {
 			break
 		}
+
+		if p == nil {
+			p = Params{k: v}
+		} else {
+			p[k] = v
+		}
+
+		c = n
 
 		u = u[i+1:]
 	}
@@ -101,26 +126,22 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 	return nil, nil, ErrRouteNotFound
 }
 
-func checkTable(u string, r Routes, p Params) *Route {
+func checkTable(u string, r Routes) (*Route, string, string) {
 	for k, v := range r {
 		if k[0] == '$' {
-			p[k[1:]] = u
-
-			return v
+			return v, k[1:], u
 		}
 	}
 
-	return nil
+	return nil, "", ""
 }
 
-func checkFuncs(u string, r Routes, p Params) *Route {
+func checkFuncs(u string, r Routes) (*Route, string, string) {
 	for k, v := range r {
 		if v.Check != nil && v.Check(u) {
-			p[k] = u
-
-			return v
+			return v, k, u
 		}
 	}
 
-	return nil
+	return nil, "", ""
 }
