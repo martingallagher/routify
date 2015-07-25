@@ -61,7 +61,7 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 
 	var (
 		route *Route
-		p     = Params{}
+		p     = Params{} // This is often a wasted allocation, solve...
 	)
 
 	for {

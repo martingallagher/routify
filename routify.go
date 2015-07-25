@@ -67,7 +67,7 @@ func main() {
 
 	fmt.Fprintf(buf, `package %s 
 
-import "code.praegress.us/routify/router"
+import "github.com/martingallagher/routify/router"
 
 var %s = router.Routes{`, *packageName, *varName)
 
