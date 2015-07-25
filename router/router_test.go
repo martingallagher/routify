@@ -27,6 +27,20 @@ func TestRouter(t *testing.T) {
 	}
 }
 
+func BenchmarkRouterSimple(b *testing.B) {
+	req, err := http.NewRequest("GET", "/simple/01", nil)
+
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		routes.Get(req)
+	}
+}
+
 func BenchmarkRouter1(b *testing.B) {
 	req, err := http.NewRequest("GET", "/schemas/test/archives/2015/02/12", nil)
 
@@ -71,6 +85,20 @@ func BenchmarkRouterStatic(b *testing.B) {
 
 func BenchmarkRouterStaticDeep(b *testing.B) {
 	req, err := http.NewRequest("GET", "/really/deep/example/of/a/static/uri/hello/dennis", nil)
+
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		routes.Get(req)
+	}
+}
+
+func BenchmarkRouterDeep(b *testing.B) {
+	req, err := http.NewRequest("GET", "/really/12/example/of/02/static/uri/hello/dennis/1809", nil)
 
 	if err != nil {
 		b.Fatal(err)
