@@ -20,12 +20,9 @@ type Routes map[string]*Route
 // Params contains the parsed URL parameters.
 type Params map[string]string
 
-// Get returns the parameter value for the given
-// key, returning false if the key is non-existent.
-func (p Params) Get(k string) (string, bool) {
-	v, ok := p[k]
-
-	return v, ok
+// Get returns the parameter value for the given key.
+func (p Params) Get(k string) string {
+	return p[k]
 }
 
 // Route represents an individual route/end-point.
