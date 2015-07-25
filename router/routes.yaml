@@ -1,0 +1,9 @@
+GET:
+  schemas/$schema/archives/$year/$month/$day: exampleHandler
+  $day/classes/go: exampleHandler
+  testing/hello/world: exampleHandler
+
+params:
+  year:   IsYear
+  month:  IsMonth
+  day:    IsDay
