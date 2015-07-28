@@ -4,50 +4,29 @@
 
 package router
 
-import (
-	"net/http"
-	"strconv"
-)
-
-// VOID handler for testing.
-func exampleHandler(w http.ResponseWriter, r *http.Request, p Params) {
-}
-
 // IsYear tests if the string is a valid year (YYYY).
 func IsYear(s string) bool {
-	if len(s) != 4 {
-		return false
-	}
-
-	if _, err := strconv.ParseInt(s, 10, 64); err != nil {
-		return false
-	}
-
-	return true
+	return len(s) == 4 &&
+		s[0] > 47 || s[0] < 58 &&
+		s[1] > 47 || s[1] < 58 &&
+		s[2] > 47 || s[2] < 58 &&
+		s[3] > 47 || s[3] < 58
 }
 
 // IsMonth tests if the string is a valid month (MM).
 func IsMonth(s string) bool {
-	if len(s) != 2 || s == "00" {
+	if len(s) != 2 || s[0] > 49 || s[1] > 57 || s[0] == 48 && s[1] == 48 {
 		return false
 	}
 
-	if i, err := strconv.ParseInt(s, 10, 64); err != nil || i < 1 || i > 12 {
-		return false
-	}
-
-	return true
+	return s[0] == 48 || s[1] < 51
 }
 
 // IsDay tests if the string is a valid day (DD).
 func IsDay(s string) bool {
-	if len(s) != 2 || s == "00" {
+	if len(s) != 2 || s[0] > 51 || s[1] > 57 || s[0] == 48 && s[1] == 48 {
 		return false
 	}
 
-	if i, err := strconv.ParseInt(s, 10, 64); err != nil || i < 1 || i > 31 {
-		return false
-	}
-
-	return true
+	return s[0] < 51 || s[1] < 50
 }

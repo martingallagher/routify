@@ -9,6 +9,10 @@ import (
 	"testing"
 )
 
+// VOID handler for testing.
+func exampleHandler(w http.ResponseWriter, r *http.Request, p Params) {
+}
+
 func TestRouter(t *testing.T) {
 	req, err := http.NewRequest("GET", "/schemas/test/archives/2015/02/12", nil)
 
@@ -25,10 +29,44 @@ func TestRouter(t *testing.T) {
 	} else if h == nil {
 		t.Fatal("nil handler")
 	}
+
+	t.Logf("%#v", p)
 }
 
-func BenchmarkRouterSimple(b *testing.B) {
-	req, err := http.NewRequest("GET", "/simple/01", nil)
+func TestRouterLongSimple(t *testing.T) {
+	req, err := http.NewRequest("GET", "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h, p, err := routes.Get(req)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if len(p) == 0 || p.Get("g") == "" {
+		t.Fatal("empty params")
+	} else if h == nil {
+		t.Fatal("nil handler")
+	}
+
+	t.Logf("%#v", p)
+}
+
+func TestRouterLongStatic(t *testing.T) {
+	req, err := http.NewRequest("GET", "/static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if h, _, err := routes.Get(req); err != nil {
+		t.Fatal(err)
+	} else if h == nil {
+		t.Fatal("nil handler")
+	}
+}
+
+func BenchmarkRouterLongSimple(b *testing.B) {
+	req, err := http.NewRequest("GET", "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
 
 	if err != nil {
 		b.Fatal(err)
@@ -41,64 +79,22 @@ func BenchmarkRouterSimple(b *testing.B) {
 	}
 }
 
-func BenchmarkRouter1(b *testing.B) {
+func BenchmarkRouterLongStatic(b *testing.B) {
+	req, err := http.NewRequest("GET", "/static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		routes.Get(req)
+	}
+}
+
+func BenchmarkRouterMultiParam(b *testing.B) {
 	req, err := http.NewRequest("GET", "/schemas/test/archives/2015/02/12", nil)
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		routes.Get(req)
-	}
-}
-
-func BenchmarkRouter2(b *testing.B) {
-	req, err := http.NewRequest("GET", "/1/classes/go", nil)
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		routes.Get(req)
-	}
-}
-
-func BenchmarkRouterStatic(b *testing.B) {
-	req, err := http.NewRequest("GET", "/testing/hello/world", nil)
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		routes.Get(req)
-	}
-}
-
-func BenchmarkRouterStaticDeep(b *testing.B) {
-	req, err := http.NewRequest("GET", "/really/deep/example/of/a/static/uri/hello/dennis", nil)
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		routes.Get(req)
-	}
-}
-
-func BenchmarkRouterDeep(b *testing.B) {
-	req, err := http.NewRequest("GET", "/really/12/example/of/02/static/uri/hello/dennis/1809", nil)
 
 	if err != nil {
 		b.Fatal(err)

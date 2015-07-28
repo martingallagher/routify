@@ -1,12 +1,11 @@
 GET:
-  simple/$day: exampleHandler
-  schemas/$schema/archives/$year/$month/$day: exampleHandler
-  $day/classes/go: exampleHandler
-  testing/hello/world: exampleHandler
-  really/deep/example/of/a/static/uri/hello/dennis: exampleHandler
-  really/$day/example/of/$month/static/uri/hello/dennis/$year: exampleHandler
+  /: 																		exampleHandler
+  nofunc/$a/$b/$c/$d/$e/$f/$g/$h/$i/$j/$k/$l/$m/$n/$o/$p/$q/$r/$s/$t/$u: 	exampleHandler
+  static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u: 						exampleHandler
+  schemas/$schema/archives/$year/$month/$day:								exampleHandler
+  testing/hello/world: 														exampleHandler
 
 params:
-  year:   IsYear
-  month:  IsMonth
-  day:    IsDay
+  $year:   IsYear
+  $month:  IsMonth
+  $day:    IsDay

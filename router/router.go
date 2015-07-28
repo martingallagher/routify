@@ -27,121 +27,75 @@ func (p Params) Get(k string) string {
 
 // Route represents an individual route/end-point.
 type Route struct {
+	Param       string            // Parameter name
 	Check       func(string) bool // Function to check if section is valid
 	HandlerFunc HandlerFunc       // Handler function use to serve
-	Table       Routes            // Child routes, simple, map-based
-	Funcs       Routes            // Child routes requiring validation by the Check function
-	Param       bool              // Determines if the route should be added to the returned parameters
+	Child       *Route            // Child route (parameter capture)
+	Children    Routes            // Children (static paths)
 }
 
 // Get attempts to get a route for the given request.
 func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
-	c := m[r.Method]
+	route := m[r.Method]
 
-	if c == nil {
+	if route == nil {
 		return nil, nil, ErrInvalidMethod
 	}
 
-	u := r.URL.Path
+	var (
+		u      = r.URL.Path
+		exists bool
+	)
 
 	if u == "" || u == "/" {
-		if v, exists := m[r.Method].Table["/"]; exists {
-			return v.HandlerFunc, nil, nil
+		if route, exists = m[r.Method].Children["/"]; exists && route.HandlerFunc != nil {
+			return route.HandlerFunc, nil, nil
 		}
 
 		return nil, nil, ErrRouteNotFound
-	}
-
-	if u[0] == '/' {
+	} else if u[0] == '/' {
 		u = u[1:]
 	}
 
-	var (
-		route *Route
-		p     Params
-	)
+	var p Params
 
 	for {
+		s := u
 		i := strings.IndexByte(u, '/')
 
-		if i == -1 {
-			if n, exists := c.Table[u]; exists {
-				route = n
+		if i != -1 {
+			s = u[:i]
+			u = u[i+1:]
+		}
 
+		if route.Child != nil {
+			// Capture parameter
+			route = route.Child
+
+			if route.Check != nil && !route.Check(s) {
+				return nil, nil, ErrRouteNotFound
+			}
+
+			if p != nil {
+				p[route.Param] = s
+			} else {
+				p = Params{route.Param: s}
+			}
+
+			if i == -1 {
 				break
 			}
-
-			n, k, v := checkTable(u, c.Table)
-
-			if n == nil {
-				n, k, v = checkFuncs(u, c.Funcs)
-			}
-
-			if n != nil {
-				route = n
-
-				if p == nil {
-					p = Params{k: v}
-				} else {
-					p[k] = v
-				}
-			}
-
+		} else if route, exists = route.Children[s]; !exists {
+			// Static
+			return nil, nil, ErrRouteNotFound
+		} else if i == -1 {
 			break
 		}
-
-		// Table lookups are faster and take priority
-		if s, exists := c.Table[u[:i]]; exists {
-			c, u = s, u[i+1:]
-
-			continue
-		}
-
-		n, k, v := checkTable(u[:i], c.Table)
-
-		if n == nil {
-			n, k, v = checkFuncs(u[:i], c.Funcs)
-		}
-
-		// Check once more...
-		if n == nil {
-			break
-		}
-
-		if p == nil {
-			p = Params{k: v}
-		} else {
-			p[k] = v
-		}
-
-		c = n
-
-		u = u[i+1:]
 	}
 
-	if route != nil {
-		return route.HandlerFunc, p, nil
+	if route == nil || route.HandlerFunc == nil {
+		return nil, nil, ErrRouteNotFound
 	}
 
-	return nil, nil, ErrRouteNotFound
-}
-
-func checkTable(u string, r Routes) (*Route, string, string) {
-	for k, v := range r {
-		if k[0] == '$' {
-			return v, k[1:], u
-		}
-	}
-
-	return nil, "", ""
-}
-
-func checkFuncs(u string, r Routes) (*Route, string, string) {
-	for k, v := range r {
-		if v.Check != nil && v.Check(u) {
-			return v, k, u
-		}
-	}
-
-	return nil, "", ""
+	return route.HandlerFunc, p, nil
 }

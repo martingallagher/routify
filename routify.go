@@ -34,9 +34,9 @@ type routes struct {
 }
 
 type route struct {
-	table         routemap
-	funcs         routemap
-	check, handle string
+	child                *route
+	children             routemap
+	param, check, handle string
 }
 
 func main() {
@@ -59,6 +59,8 @@ func main() {
 
 	r, err := loadRoutes()
 
+	//spew.Dump(r)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,17 +71,18 @@ func main() {
 
 import "github.com/martingallagher/routify/router"
 
-var %s = router.Routes{`, *packageName, *varName)
+var %s =  router.Routes{
+`, *packageName, *varName)
 
 	for k, v := range r.routes {
-		if len(v.table) == 0 && len(v.funcs) == 0 {
+		if len(v.children) == 0 {
 			continue
 		}
 
-		writeRule(buf, k, v)
+		r.writeRule(buf, k, v)
 	}
 
-	buf.WriteString("\n}\n")
+	buf.WriteString("\n}")
 
 	if _, err = buf.WriteTo(f); err != nil {
 		log.Fatal(err)
@@ -88,7 +91,7 @@ var %s = router.Routes{`, *packageName, *varName)
 
 func (r *routes) add(method, path, handle string) error {
 	if _, exists := r.routes[method]; !exists {
-		r.routes[method] = &route{table: routemap{}, funcs: routemap{}}
+		r.routes[method] = &route{children: routemap{}}
 	}
 
 	var (
@@ -102,73 +105,81 @@ func (r *routes) add(method, path, handle string) error {
 		p = []string{"/"}
 	}
 
-	for i, l := 0, len(p)-1; i <= l; i++ {
-		if p[i] == "" {
+	for _, v := range p {
+		if v == "" {
 			return errInvalidPath
 		}
 
-		isParam := p[i][0] == '$'
-		m := c.table
-
-		if isParam {
-			if _, exists := r.params[p[i][1:]]; exists {
-				p[i] = p[i][1:]
-				m = c.funcs
+		// Parameter
+		if v[0] == '$' {
+			c.child = &route{
+				param:    v[1:],
+				check:    r.params[v],
+				children: routemap{},
 			}
-		}
 
-		if _, exists := m[p[i]]; !exists {
-			m[p[i]] = &route{table: routemap{}, funcs: routemap{}}
-		}
+			c = c.child
 
-		c = m[p[i]]
-
-		if isParam {
-			c.check = r.params[p[i]]
-		}
-
-		if i < l {
 			continue
 		}
 
-		c.handle = handle
+		// Allocate map for static routes
+		if _, exists := c.children[v]; !exists {
+			c.children[v] = &route{children: routemap{}}
+		}
+
+		c = c.children[v]
 	}
+
+	c.handle = handle
 
 	return nil
 }
 
-func writeRule(buf *bytes.Buffer, p string, r *route) {
-	fmt.Fprintf(buf, "\n\"%s\": &router.Route{", p)
+func (r *routes) writeChild(buf *bytes.Buffer, c *route) {
+	fmt.Fprintf(buf, "Child: &router.Route{\nParam: \"%s\",\n", c.param)
 
-	if r.handle != "" {
-		fmt.Fprintf(buf, "HandlerFunc: %s,", r.handle)
+	if c.check != "" {
+		fmt.Fprintf(buf, "Check: %s,\n", c.check)
 	}
 
-	if r.check != "" {
-		fmt.Fprintf(buf, "Check: %s,", r.check)
+	if c.handle != "" {
+		fmt.Fprintf(buf, "HandlerFunc: %s,\n", c.handle)
 	}
 
-	if len(r.table) > 0 {
-		buf.WriteString("\nTable: router.Routes{")
-
-		for k, v := range r.table {
-			writeRule(buf, k, v)
-		}
-
-		buf.WriteString("},")
+	if len(c.children) > 0 {
+		r.writeChildren(buf, c)
+	} else if c.child != nil {
+		r.writeChild(buf, c.child)
 	}
 
-	if len(r.funcs) > 0 {
-		buf.WriteString("\nFuncs: router.Routes{")
+	buf.WriteString("},\n")
+}
 
-		for k, v := range r.funcs {
-			writeRule(buf, k, v)
-		}
+func (r *routes) writeChildren(buf *bytes.Buffer, c *route) {
+	buf.WriteString("Children: router.Routes{\n")
 
-		buf.WriteString("},")
+	for k, v := range c.children {
+		r.writeRule(buf, k, v)
 	}
 
-	buf.WriteString("},")
+	buf.WriteString("},\n")
+}
+
+func (r *routes) writeRule(buf *bytes.Buffer, p string, c *route) {
+	fmt.Fprintf(buf, "\"%s\": &router.Route{\n", p)
+
+	if c.handle != "" {
+		fmt.Fprintf(buf, "HandlerFunc: %s,\n", c.handle)
+	}
+
+	if len(c.children) > 0 {
+		r.writeChildren(buf, c)
+	} else if c.child != nil {
+		r.writeChild(buf, c.child)
+	}
+
+	buf.WriteString("},\n")
 }
 
 func loadRoutes() (*routes, error) {
@@ -186,6 +197,8 @@ func loadRoutes() (*routes, error) {
 		return nil, err
 	}
 
+	f.Close()
+
 	var m map[string]interface{}
 
 	if err = yaml.Unmarshal(b, &m); err != nil {
@@ -198,14 +211,14 @@ func loadRoutes() (*routes, error) {
 	)
 
 	for k, v := range m {
+		p, ok := v.(map[interface{}]interface{})
+
+		if !ok {
+			continue
+		}
+
 		switch u := strings.ToUpper(k); u {
 		case "PARAMS", "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HELP":
-			p, ok := v.(map[interface{}]interface{})
-
-			if !ok {
-				continue
-			}
-
 			for a, b := range p {
 				t, ok := a.(string)
 
@@ -229,12 +242,6 @@ func loadRoutes() (*routes, error) {
 			}
 
 		default:
-			p, ok := v.(map[interface{}]interface{})
-
-			if !ok {
-				continue
-			}
-
 			for a, b := range p {
 				t, ok := a.(string)
 
