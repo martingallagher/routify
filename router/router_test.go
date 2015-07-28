@@ -9,12 +9,18 @@ import (
 	"testing"
 )
 
+const (
+	longStatic = "/static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u"
+	shortParam = "/schemas/test/archives/2015/02/12"
+	longParam  = "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u"
+)
+
 // VOID handler for testing.
 func exampleHandler(w http.ResponseWriter, r *http.Request, p Params) {
 }
 
 func TestRouter(t *testing.T) {
-	req, err := http.NewRequest("GET", "/schemas/test/archives/2015/02/12", nil)
+	req, err := http.NewRequest("GET", shortParam, nil)
 
 	if err != nil {
 		t.Fatal(err)
@@ -34,7 +40,7 @@ func TestRouter(t *testing.T) {
 }
 
 func TestRouterLongSimple(t *testing.T) {
-	req, err := http.NewRequest("GET", "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+	req, err := http.NewRequest("GET", longParam, nil)
 
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +60,7 @@ func TestRouterLongSimple(t *testing.T) {
 }
 
 func TestRouterLongStatic(t *testing.T) {
-	req, err := http.NewRequest("GET", "/static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+	req, err := http.NewRequest("GET", longStatic, nil)
 
 	if err != nil {
 		t.Fatal(err)
@@ -66,7 +72,7 @@ func TestRouterLongStatic(t *testing.T) {
 }
 
 func BenchmarkRouterLongSimple(b *testing.B) {
-	req, err := http.NewRequest("GET", "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+	req, err := http.NewRequest("GET", longParam, nil)
 
 	if err != nil {
 		b.Fatal(err)
@@ -80,7 +86,7 @@ func BenchmarkRouterLongSimple(b *testing.B) {
 }
 
 func BenchmarkRouterLongStatic(b *testing.B) {
-	req, err := http.NewRequest("GET", "/static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u", nil)
+	req, err := http.NewRequest("GET", longStatic, nil)
 
 	if err != nil {
 		b.Fatal(err)
@@ -94,7 +100,7 @@ func BenchmarkRouterLongStatic(b *testing.B) {
 }
 
 func BenchmarkRouterMultiParam(b *testing.B) {
-	req, err := http.NewRequest("GET", "/schemas/test/archives/2015/02/12", nil)
+	req, err := http.NewRequest("GET", shortParam, nil)
 
 	if err != nil {
 		b.Fatal(err)
