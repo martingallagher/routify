@@ -5,7 +5,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"flag"
 	"fmt"
@@ -59,15 +58,11 @@ func main() {
 
 	r, err := loadRoutes()
 
-	//spew.Dump(r)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	buf := &bytes.Buffer{}
-
-	fmt.Fprintf(buf, `package %s 
+	fmt.Fprintf(f, `package %s 
 
 import "github.com/martingallagher/routify/router"
 
@@ -79,12 +74,12 @@ var %s =  router.Routes{
 			continue
 		}
 
-		r.writeRule(buf, k, v)
+		r.writeRule(f, k, v)
 	}
 
-	buf.WriteString("\n}")
+	f.WriteString("\n}")
 
-	if _, err = buf.WriteTo(f); err != nil {
+	if err = f.Sync(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -136,50 +131,50 @@ func (r *routes) add(method, path, handle string) error {
 	return nil
 }
 
-func (r *routes) writeChild(buf *bytes.Buffer, c *route) {
-	fmt.Fprintf(buf, "Child: &router.Route{\nParam: \"%s\",\n", c.param)
+func (r *routes) writeChild(f *os.File, c *route) {
+	fmt.Fprintf(f, "Child: &router.Route{\nParam: \"%s\",\n", c.param)
 
 	if c.check != "" {
-		fmt.Fprintf(buf, "Check: %s,\n", c.check)
+		fmt.Fprintf(f, "Check: %s,\n", c.check)
 	}
 
 	if c.handle != "" {
-		fmt.Fprintf(buf, "HandlerFunc: %s,\n", c.handle)
+		fmt.Fprintf(f, "HandlerFunc: %s,\n", c.handle)
 	}
 
 	if len(c.children) > 0 {
-		r.writeChildren(buf, c)
+		r.writeChildren(f, c)
 	} else if c.child != nil {
-		r.writeChild(buf, c.child)
+		r.writeChild(f, c.child)
 	}
 
-	buf.WriteString("},\n")
+	f.WriteString("},\n")
 }
 
-func (r *routes) writeChildren(buf *bytes.Buffer, c *route) {
-	buf.WriteString("Children: router.Routes{\n")
+func (r *routes) writeChildren(f *os.File, c *route) {
+	f.WriteString("Children: router.Routes{\n")
 
 	for k, v := range c.children {
-		r.writeRule(buf, k, v)
+		r.writeRule(f, k, v)
 	}
 
-	buf.WriteString("},\n")
+	f.WriteString("},\n")
 }
 
-func (r *routes) writeRule(buf *bytes.Buffer, p string, c *route) {
-	fmt.Fprintf(buf, "\"%s\": &router.Route{\n", p)
+func (r *routes) writeRule(f *os.File, p string, c *route) {
+	fmt.Fprintf(f, "\"%s\": &router.Route{\n", p)
 
 	if c.handle != "" {
-		fmt.Fprintf(buf, "HandlerFunc: %s,\n", c.handle)
+		fmt.Fprintf(f, "HandlerFunc: %s,\n", c.handle)
 	}
 
 	if len(c.children) > 0 {
-		r.writeChildren(buf, c)
+		r.writeChildren(f, c)
 	} else if c.child != nil {
-		r.writeChild(buf, c.child)
+		r.writeChild(f, c.child)
 	}
 
-	buf.WriteString("},\n")
+	f.WriteString("},\n")
 }
 
 func loadRoutes() (*routes, error) {
