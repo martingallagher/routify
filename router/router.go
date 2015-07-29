@@ -17,24 +17,6 @@ type HandlerFunc func(http.ResponseWriter, *http.Request, Params)
 // Routes represents the defined routes.
 type Routes map[string]*Route
 
-type param struct {
-	k, v string
-}
-
-// Params contains the parsed URL parameters.
-type Params []param
-
-// Get returns the parameter value for the given key.
-func (p Params) Get(k string) string {
-	for _, c := range p {
-		if c.k == k {
-			return c.v
-		}
-	}
-
-	return ""
-}
-
 // Route represents an individual route/end-point.
 type Route struct {
 	Param       string            // Parameter name

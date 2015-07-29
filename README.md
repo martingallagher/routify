@@ -35,6 +35,41 @@ params:
   $day:    IsDay
 ```
 
+# Accessing Parameters
+```go
+_, params, err := routes.Get(r) // Handle error
+
+// String value, if not found returns empty string
+v := params.Get("year")
+
+// Integer helpers
+v, err := params.GetInt("year") // int64
+v, err := params.GetUint("id") // uint64
+
+// Scanner interface
+type month time.Month
+
+func (m *month) Scan(i interface{}) error {
+	v, ok := i.(*month)
+
+	if !ok {
+		return errors.New("unsupported type")
+	}
+
+	*m = *v
+
+	return nil
+}
+
+// Scan example
+var m month
+
+err := params.Scan("month", &m)
+
+// Assuming month=02
+fmt.Println(time.Month(m).String() == "February")
+```
+
 # `routify` Command Line Tool
 The routify tool generates the Go routes file. Run `routify -h` for full options.
 
