@@ -1,0 +1,7 @@
+GET:
+  /:				index
+  hello/$str:		hello
+  printnum/$num:	printnum
+
+params:
+  $num: validateNumber
