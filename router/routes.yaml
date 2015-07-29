@@ -6,7 +6,7 @@ GET:
   schemas/$schema:															exampleHandler
   testing/hello/world: 														exampleHandler
 
-testing/hello/world:
+schemas/$schema:
   POST: 	exampleHandler
   PUT:		exampleHandler
   DELETE:	exampleHandler

@@ -20,7 +20,7 @@ var (
 	inputFile       = flag.String("i", "routes.yaml", "Routes input file")
 	outputFile      = flag.String("o", "routes.go", "Routes output file")
 	packageName     = flag.String("p", "", "Package name")
-	varName         = flag.String("v", "Routes", "Variable name")
+	varName         = flag.String("v", "routes", "Variable name")
 	errInvalidInput = errors.New("missing routes input file")
 	errInvalidPath  = errors.New("invalid route path")
 )
