@@ -114,7 +114,7 @@ func (p Params) Scan(k string, dst interface{}) error {
 
 	// Utilize Scanner interface
 	if s, ok := dst.(Scanner); ok {
-		return s.Scan(dst)
+		return s.Scan(p.Get(k))
 	}
 
 	return ErrUnsupportedType

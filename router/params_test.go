@@ -7,6 +7,7 @@ package router
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -14,13 +15,21 @@ import (
 type month time.Month
 
 func (m *month) Scan(i interface{}) error {
-	v, ok := i.(*month)
+	v, ok := i.(string)
 
 	if !ok {
 		return errors.New("unsupported type")
 	}
 
-	*m = *v
+	c, err := strconv.Atoi(v)
+
+	if err != nil {
+		return err
+	} else if c < 0 || c > 12 {
+		return errors.New("month out of bounds")
+	}
+
+	*m = month(c)
 
 	return nil
 }
