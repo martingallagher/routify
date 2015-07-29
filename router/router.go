@@ -106,3 +106,7 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 
 	return route.HandlerFunc, p, nil
 }
+
+// VOID handler for testing.
+func exampleHandler(w http.ResponseWriter, r *http.Request, p Params) {
+}
