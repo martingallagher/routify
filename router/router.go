@@ -17,12 +17,22 @@ type HandlerFunc func(http.ResponseWriter, *http.Request, Params)
 // Routes represents the defined routes.
 type Routes map[string]*Route
 
+type param struct {
+	k, v string
+}
+
 // Params contains the parsed URL parameters.
-type Params map[string]string
+type Params []param
 
 // Get returns the parameter value for the given key.
 func (p Params) Get(k string) string {
-	return p[k]
+	for _, c := range p {
+		if c.k == k {
+			return c.v
+		}
+	}
+
+	return ""
 }
 
 // Route represents an individual route/end-point.
@@ -36,16 +46,13 @@ type Route struct {
 
 // Get attempts to get a route for the given request.
 func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
-	route := m[r.Method]
+	route, exists := m[r.Method]
 
-	if route == nil {
+	if !exists {
 		return nil, nil, ErrInvalidMethod
 	}
 
-	var (
-		u      = r.URL.Path
-		exists bool
-	)
+	u := r.URL.Path
 
 	if u == "" || u == "/" {
 		if route, exists = m[r.Method].Children["/"]; exists && route.HandlerFunc != nil {
@@ -82,11 +89,7 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 				return nil, nil, ErrRouteNotFound
 			}
 
-			if p != nil {
-				p[route.Param] = s
-			} else {
-				p = Params{route.Param: s}
-			}
+			p = append(p, param{route.Param, s})
 
 			if i == -1 {
 				break
