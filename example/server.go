@@ -28,7 +28,7 @@ func main() {
 		log.Fatal(http.ListenAndServe(addr, nil))
 	}()
 
-	log.Printf("sever started: http://%s", addr)
+	log.Printf("server started: http://%s", addr)
 
 	// Capture signals e.g. CTRL+C
 	sig := make(chan os.Signal, 1)
