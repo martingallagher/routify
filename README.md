@@ -24,9 +24,7 @@ GET:
 # Route -> Method format
 blog/post:
   POST: 	newPost
-  PUT:		updatePost
   DELETE:	deletePost
-  PATCH:	patchPost
 
 # Params defines URL paramters to be captured and validated.
 # URL components prefixed with "$" with no matching validation function
