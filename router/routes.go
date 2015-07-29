@@ -72,96 +72,13 @@ var routes = Routes{
 					},
 				},
 			},
-			"static": &Route{
-				Children: Routes{
-					"a": &Route{
-						Children: Routes{
-							"b": &Route{
-								Children: Routes{
-									"c": &Route{
-										Children: Routes{
-											"d": &Route{
-												Children: Routes{
-													"e": &Route{
-														Children: Routes{
-															"f": &Route{
-																Children: Routes{
-																	"g": &Route{
-																		Children: Routes{
-																			"h": &Route{
-																				Children: Routes{
-																					"i": &Route{
-																						Children: Routes{
-																							"j": &Route{
-																								Children: Routes{
-																									"k": &Route{
-																										Children: Routes{
-																											"l": &Route{
-																												Children: Routes{
-																													"m": &Route{
-																														Children: Routes{
-																															"n": &Route{
-																																Children: Routes{
-																																	"o": &Route{
-																																		Children: Routes{
-																																			"p": &Route{
-																																				Children: Routes{
-																																					"q": &Route{
-																																						Children: Routes{
-																																							"r": &Route{
-																																								Children: Routes{
-																																									"s": &Route{
-																																										Children: Routes{
-																																											"t": &Route{
-																																												Children: Routes{
-																																													"u": &Route{
-																																														HandlerFunc: exampleHandler,
-																																													},
-																																												},
-																																											},
-																																										},
-																																									},
-																																								},
-																																							},
-																																						},
-																																					},
-																																				},
-																																			},
-																																		},
-																																	},
-																																},
-																															},
-																														},
-																													},
-																												},
-																											},
-																										},
-																									},
-																								},
-																							},
-																						},
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
+			"static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u": &Route{
+				HandlerFunc: exampleHandler,
 			},
 			"schemas": &Route{
 				Child: &Route{
-					Param: "schema",
+					Param:       "schema",
+					HandlerFunc: exampleHandler,
 					Children: Routes{
 						"archives": &Route{
 							Child: &Route{
@@ -181,16 +98,36 @@ var routes = Routes{
 					},
 				},
 			},
-			"testing": &Route{
-				Children: Routes{
-					"hello": &Route{
-						Children: Routes{
-							"world": &Route{
-								HandlerFunc: exampleHandler,
-							},
-						},
-					},
-				},
+			"testing/hello/world": &Route{
+				HandlerFunc: exampleHandler,
+			},
+		},
+	},
+	"POST": &Route{
+		Children: Routes{
+			"testing/hello/world": &Route{
+				HandlerFunc: exampleHandler,
+			},
+		},
+	},
+	"PUT": &Route{
+		Children: Routes{
+			"testing/hello/world": &Route{
+				HandlerFunc: exampleHandler,
+			},
+		},
+	},
+	"DELETE": &Route{
+		Children: Routes{
+			"testing/hello/world": &Route{
+				HandlerFunc: exampleHandler,
+			},
+		},
+	},
+	"PATCH": &Route{
+		Children: Routes{
+			"testing/hello/world": &Route{
+				HandlerFunc: exampleHandler,
 			},
 		},
 	},

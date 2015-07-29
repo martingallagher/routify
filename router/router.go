@@ -60,6 +60,12 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 	var p Params
 
 	for {
+		if v, exists := route.Children[u]; exists {
+			route = v
+
+			break
+		}
+
 		s := u
 		i := strings.IndexByte(u, '/')
 
@@ -88,8 +94,6 @@ func (m Routes) Get(r *http.Request) (HandlerFunc, Params, error) {
 		} else if route, exists = route.Children[s]; !exists {
 			// Static
 			return nil, nil, ErrRouteNotFound
-		} else if i == -1 {
-			break
 		}
 	}
 

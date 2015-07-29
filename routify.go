@@ -84,6 +84,26 @@ var %s =  router.Routes{
 	}
 }
 
+func staticPath(p []string) (string, int) {
+	s := ""
+	c := -1
+
+	for i, v := range p {
+		if v[0] == '$' {
+			break
+		}
+
+		if i > 0 {
+			s += "/"
+		}
+
+		s += v
+		c++
+	}
+
+	return s, c
+}
+
 func (r *routes) add(method, path, handle string) error {
 	if _, exists := r.routes[method]; !exists {
 		r.routes[method] = &route{children: routemap{}}
@@ -100,23 +120,28 @@ func (r *routes) add(method, path, handle string) error {
 		p = []string{"/"}
 	}
 
-	for _, v := range p {
-		if v == "" {
+	for i, l := 0, len(p); i < l; i++ {
+		if p[i] == "" {
 			return errInvalidPath
 		}
 
 		// Parameter
-		if v[0] == '$' {
-			c.child = &route{
-				param:    v[1:],
-				check:    r.params[v],
-				children: routemap{},
+		if p[i][0] == '$' {
+			if c.child == nil || c.child.param != p[i][1:] {
+				c.child = &route{
+					param:    p[i][1:],
+					check:    r.params[p[i]],
+					children: routemap{},
+				}
 			}
 
 			c = c.child
 
 			continue
 		}
+
+		v, n := staticPath(p[i:])
+		i += n
 
 		// Allocate map for static routes
 		if _, exists := c.children[v]; !exists {

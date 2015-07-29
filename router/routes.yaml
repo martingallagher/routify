@@ -3,7 +3,14 @@ GET:
   nofunc/$a/$b/$c/$d/$e/$f/$g/$h/$i/$j/$k/$l/$m/$n/$o/$p/$q/$r/$s/$t/$u: 	exampleHandler
   static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u: 						exampleHandler
   schemas/$schema/archives/$year/$month/$day:								exampleHandler
+  schemas/$schema:															exampleHandler
   testing/hello/world: 														exampleHandler
+
+testing/hello/world:
+  POST: 	exampleHandler
+  PUT:		exampleHandler
+  DELETE:	exampleHandler
+  PATCH:	exampleHandler
 
 params:
   $year:   IsYear
