@@ -106,6 +106,9 @@ Routify works great in tandem with `go generate`, making route generation easy w
 package blog
 ```
 
+# Server Example
+A simple reference example is available in the `example` directory.
+
 # Contributions
 Bug fixes and feature requests welcome.
 
