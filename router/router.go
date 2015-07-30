@@ -170,6 +170,23 @@ func (r *Router) AddValidator(n string, f func(string) bool) {
 	}
 }
 
+// ServeHTTP implements the Handler interface.
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	h, p, err := r.Get(req)
+
+	if err != nil {
+		if e, ok := err.(*Error); ok {
+			w.WriteHeader(e.code)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	h(w, req, p)
+}
+
 // VOID handler for testing.
 func exampleHandler(w http.ResponseWriter, r *http.Request, p Params) {
 }
