@@ -84,7 +84,7 @@ var %s = &router.Router{
 		f.WriteString("\nValidators: router.Validators{\n")
 
 		for k, v := range r.params {
-			fmt.Fprintf(f, "\"%s\": %s,\n", k, v)
+			fmt.Fprintf(f, "\"%s\": %s,\n", k[1:], v)
 		}
 
 		f.WriteString("},")
@@ -102,7 +102,7 @@ func staticPath(p []string) (string, int) {
 	c := -1
 
 	for i, v := range p {
-		if v[0] == '$' {
+		if v[0] == ':' || v[0] == '$' {
 			break
 		}
 

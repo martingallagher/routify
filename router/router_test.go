@@ -17,11 +17,11 @@ const (
 
 func TestRuntimeRouter(t *testing.T) {
 	r := &Router{}
-	r.AddValidator("$year", IsYear)
-	r.AddValidator("$month", IsMonth)
-	r.AddValidator("$day", IsDay)
+	r.AddValidator(":year", IsYear)
+	r.AddValidator(":month", IsMonth)
+	r.AddValidator(":day", IsDay)
 
-	if err := r.Add("GET", "schemas/$schema/archives/$year/$month/$day", exampleHandler); err != nil {
+	if err := r.Add("GET", "schemas/:schema/archives/:year/:month/:day", exampleHandler); err != nil {
 		t.Fatal(err)
 	}
 

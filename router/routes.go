@@ -2,6 +2,16 @@ package router
 
 var routes = &Router{
 	Routes: Routes{
+		"DELETE": &Route{
+			Children: Routes{
+				"schemas": &Route{
+					Child: &Route{
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
+					},
+				},
+			},
+		},
 		"PATCH": &Route{
 			Children: Routes{
 				"schemas": &Route{
@@ -34,12 +44,6 @@ var routes = &Router{
 		},
 		"GET": &Route{
 			Children: Routes{
-				"testing/hello/world": &Route{
-					HandlerFunc: exampleHandler,
-				},
-				"/": &Route{
-					HandlerFunc: exampleHandler,
-				},
 				"nofunc": &Route{
 					Child: &Route{
 						Param: "a",
@@ -132,22 +136,18 @@ var routes = &Router{
 						},
 					},
 				},
-			},
-		},
-		"DELETE": &Route{
-			Children: Routes{
-				"schemas": &Route{
-					Child: &Route{
-						Param:       "schema",
-						HandlerFunc: exampleHandler,
-					},
+				"testing/hello/world": &Route{
+					HandlerFunc: exampleHandler,
+				},
+				"/": &Route{
+					HandlerFunc: exampleHandler,
 				},
 			},
 		},
 	},
 	Validators: Validators{
-		"$year":  IsYear,
-		"$month": IsMonth,
-		"$day":   IsDay,
+		"year":  IsYear,
+		"month": IsMonth,
+		"day":   IsDay,
 	},
 }

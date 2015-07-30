@@ -130,11 +130,11 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 		}
 
 		// Parameter
-		if p[i][0] == '$' {
+		if p[i][0] == ':' || p[i][0] == '$' {
 			if c.Child == nil || c.Child.Param != p[i][1:] {
 				c.Child = &Route{
 					Param: p[i][1:],
-					Check: r.Validators[p[i]],
+					Check: r.Validators[p[i][1:]],
 				}
 			}
 
@@ -163,6 +163,12 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 // AddValidator adds a validating function to
 // the validators map.
 func (r *Router) AddValidator(n string, f func(string) bool) {
+	if n == "" {
+		return
+	} else if n[0] == ':' || n[0] == '$' {
+		n = n[1:]
+	}
+
 	if r.Validators == nil {
 		r.Validators = Validators{n: f}
 	} else {
