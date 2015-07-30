@@ -65,15 +65,18 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 		u = u[1:]
 	}
 
+	// Exit early for full static match
+	if v, exists := route.Children[u]; exists {
+		if v.HandlerFunc == nil {
+			return nil, nil, ErrRouteNotFound
+		}
+
+		return v.HandlerFunc, nil, nil
+	}
+
 	var p Params
 
 	for {
-		if v, exists := route.Children[u]; exists {
-			route = v
-
-			break
-		}
-
 		s := u
 		i := strings.IndexByte(u, '/')
 

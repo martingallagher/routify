@@ -23,6 +23,8 @@ func TestRuntimeRouter(t *testing.T) {
 
 	if err := r.Add("GET", "/schemas/:schema/archives/:year/:month/:day", exampleHandler); err != nil {
 		t.Fatal(err)
+	} else if err = r.Add("POST", "/authorizations/:id", exampleHandler); err != nil {
+		t.Fatal(err)
 	}
 
 	req, err := http.NewRequest("GET", shortParam, nil)
@@ -31,7 +33,21 @@ func TestRuntimeRouter(t *testing.T) {
 		t.Fatal(err)
 	} else if _, p, err := r.Get(req); err != nil {
 		t.Fatal(err)
-	} else if p.Get("year") != "2015" {
+	} else if v, err := p.GetUint("year"); err != nil {
+		t.Fatal(err)
+	} else if v != 2015 {
+		t.Fatal("unexpected value")
+	}
+
+	req, err = http.NewRequest("POST", "/authorizations/123", nil)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if _, p, err := r.Get(req); err != nil {
+		t.Fatal(err)
+	} else if v, err := p.GetUint("id"); err != nil {
+		t.Fatal(err)
+	} else if v != 123 {
 		t.Fatal("unexpected value")
 	}
 }
