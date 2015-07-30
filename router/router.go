@@ -133,11 +133,11 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 
 	if r.Routes == nil {
 		r.Routes = Routes{m: &Route{}}
-		c = r.Routes[m]
 	} else if _, exists := r.Routes[m]; !exists {
 		r.Routes[m] = &Route{}
-		c = r.Routes[m]
 	}
+
+	c = r.Routes[m]
 
 	var p []string
 
