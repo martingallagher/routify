@@ -11,6 +11,8 @@ var (
 	ErrInvalidMethod = NewError(http.StatusMethodNotAllowed, "invalid HTTP method")
 	// ErrRouteNotFound represents HTTP 404.
 	ErrRouteNotFound = NewError(http.StatusNotFound, "route not found")
+	// ErrBadRequest represents HTTP 400.
+	ErrBadRequest = NewError(http.StatusBadRequest, "bad request")
 )
 
 // Error represents a routing error.

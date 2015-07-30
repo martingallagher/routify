@@ -10,8 +10,12 @@ import (
 	"strings"
 )
 
-// ErrInvalidPath - URL parse error; invalid route path.
-var ErrInvalidPath = errors.New("invalid route path")
+var (
+	// ErrInvalidPath - unable to construct route due to invalid / empty values.
+	ErrInvalidRoute = errors.New("invalid route")
+	// ErrInvalidPath - URL parse error; invalid route path.
+	ErrInvalidPath = errors.New("invalid route path")
+)
 
 // HandlerFunc defines the interface for
 // routify functions, identical to http.HandlerFunc
@@ -41,15 +45,17 @@ type Route struct {
 
 // Get attempts to get a route for the given request.
 func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
+	u := req.URL.Path
+
+	if u == "" {
+		return nil, nil, ErrBadRequest
+	}
+
 	route, exists := r.Routes[req.Method]
 
 	if !exists {
 		return nil, nil, ErrInvalidMethod
-	}
-
-	u := req.URL.Path
-
-	if u == "" || u == "/" {
+	} else if u == "/" {
 		if route, exists = route.Children["/"]; exists && route.HandlerFunc != nil {
 			return route.HandlerFunc, nil, nil
 		}
@@ -104,6 +110,10 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 
 // Add adds a route for the given method to the routes map.
 func (r *Router) Add(m, u string, h HandlerFunc) error {
+	if m == "" || u == "" || h == nil {
+		return ErrInvalidRoute
+	}
+
 	m = strings.ToUpper(m)
 
 	var c *Route
@@ -119,6 +129,10 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 	var p []string
 
 	if u != "/" {
+		if u[0] == '/' {
+			u = u[1:]
+		}
+
 		p = strings.Split(u, "/")
 	} else {
 		p = []string{"/"}
