@@ -35,6 +35,18 @@ params:
   $day:    IsDay
 ```
 
+# Traditional Routing
+```go
+r := &Router{}
+r.AddValidator("$year", router.IsYear)
+r.AddValidator("$month", router.IsMonth)
+r.AddValidator("$day", router.IsDay)
+
+if err := r.Add("GET", "blog/archives/$year/$month/$day", blogArchivesHandler); err != nil {
+	// Handle error
+}
+```
+
 # Accessing Parameters
 ```go
 _, params, err := routes.Get(r) // Handle error
@@ -84,56 +96,6 @@ The routify tool generates the Go routes file. Run `routify -h` for full options
 **Example:**
 
 `routify -i routes.yaml -p blog -v routes`
-
-The above command applied to the previous routes YAML will produce:
-
-```go
-package blog
-
-import "github.com/martingallagher/routify/router"
-
-var routes = router.Routes{
-	"GET": &router.Route{
-		Children: router.Routes{
-			"/": &router.Route{
-				HandlerFunc: indexHandler,
-			},
-			"blog": &router.Route{
-				HandlerFunc: blogHandler,
-				Child: &router.Route{
-					Param:       "year",
-					Check:       IsYear,
-					HandlerFunc: blogArchiveHandler,
-					Child: &router.Route{
-						Param:       "month",
-						Check:       IsMonth,
-						HandlerFunc: blogArchiveHandler,
-						Child: &router.Route{
-							Param:       "day",
-							Check:       IsDay,
-							HandlerFunc: blogArchiveHandler,
-						},
-					},
-				},
-			},
-		},
-	},
-	"DELETE": &router.Route{
-		Children: router.Routes{
-			"blog/post": &router.Route{
-				HandlerFunc: deletePost,
-			},
-		},
-	},
-	"POST": &router.Route{
-		Children: router.Routes{
-			"blog/post": &router.Route{
-				HandlerFunc: newPost,
-			},
-		},
-	},
-}
-```
 
 ## Using `go generate`
 Routify works great in tandem with `go generate`, making route generation easy with the standard Go tools.
