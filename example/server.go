@@ -10,22 +10,23 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	// Local
 	"./website"
-
-	// External
-	"github.com/martingallagher/routify/router"
 )
 
 func main() {
-	http.HandleFunc("/", globalHandler)
-
 	addr := "0.0.0.0:1337"
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      website.Routes,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
 
 	// Fire up goroutine so we can capture signals
 	go func() {
-		log.Fatal(http.ListenAndServe(addr, nil))
+		log.Fatal(server.ListenAndServe())
 	}()
 
 	log.Printf("server started: http://%s", addr)
@@ -37,24 +38,4 @@ func main() {
 
 	// Wait for signal
 	<-sig
-}
-
-func globalHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "text/plain; charset=utf-8")
-
-	h, p, err := website.Routes.Get(r)
-
-	if err != nil {
-		if e, ok := err.(*router.Error); ok {
-			w.WriteHeader(e.StatusCode())
-			w.Write([]byte(e.Error()))
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Wups, internal error!"))
-		}
-
-		return
-	}
-
-	h(w, r, p)
 }
