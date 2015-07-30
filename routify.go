@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/martingallagher/routify/router"
 	"gopkg.in/yaml.v2"
 )
 
@@ -22,7 +23,6 @@ var (
 	packageName     = flag.String("p", "", "Package name")
 	varName         = flag.String("v", "routes", "Variable name")
 	errInvalidInput = errors.New("missing routes input file")
-	errInvalidPath  = errors.New("invalid route path")
 )
 
 type routemap map[string]*route
@@ -66,7 +66,8 @@ func main() {
 
 import "github.com/martingallagher/routify/router"
 
-var %s =  router.Routes{
+var %s = &router.Router{
+	Routes: router.Routes{
 `, *packageName, *varName)
 
 	for k, v := range r.routes {
@@ -75,6 +76,18 @@ var %s =  router.Routes{
 		}
 
 		r.writeRule(f, k, v)
+	}
+
+	f.WriteString("\n},")
+
+	if len(r.params) > 0 {
+		f.WriteString("\nValidators: router.Validators{\n")
+
+		for k, v := range r.params {
+			fmt.Fprintf(f, "\"%s\": %s,\n", k, v)
+		}
+
+		f.WriteString("},")
 	}
 
 	f.WriteString("\n}")
@@ -122,7 +135,7 @@ func (r *routes) add(method, path, handle string) error {
 
 	for i, l := 0, len(p); i < l; i++ {
 		if p[i] == "" {
-			return errInvalidPath
+			return router.ErrInvalidPath
 		}
 
 		// Parameter

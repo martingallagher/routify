@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	// ErrUnsupportedType; unsupported variable destination types.
+	// ErrUnsupportedType - unsupported variable destination types.
 	ErrUnsupportedType = errors.New("unsupported destination type")
-	// ErrValueDestination; destination isn't a pointer.
+	// ErrValueDestination - destination isn't a pointer.
 	ErrValueDestination = errors.New("destination is a value, not a pointer")
 )
 

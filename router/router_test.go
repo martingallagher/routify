@@ -15,6 +15,27 @@ const (
 	longParam  = "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u"
 )
 
+func TestRuntimeRouter(t *testing.T) {
+	r := &Router{}
+	r.AddValidator("$year", IsYear)
+	r.AddValidator("$month", IsMonth)
+	r.AddValidator("$day", IsDay)
+
+	if err := r.Add("GET", "schemas/$schema/archives/$year/$month/$day", exampleHandler); err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("GET", shortParam, nil)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if _, p, err := r.Get(req); err != nil {
+		t.Fatal(err)
+	} else if p.Get("year") != "2015" {
+		t.Fatal("unexpected value")
+	}
+}
+
 func TestRouter(t *testing.T) {
 	req, err := http.NewRequest("GET", shortParam, nil)
 

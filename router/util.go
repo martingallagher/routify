@@ -30,3 +30,23 @@ func IsDay(s string) bool {
 
 	return s[0] < 51 || s[1] < 50
 }
+
+func staticPath(p []string) (string, int) {
+	s := ""
+	c := -1
+
+	for i, v := range p {
+		if v[0] == '$' {
+			break
+		}
+
+		if i > 0 {
+			s += "/"
+		}
+
+		s += v
+		c++
+	}
+
+	return s, c
+}

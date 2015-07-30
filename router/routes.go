@@ -1,111 +1,90 @@
 package router
 
-var routes = Routes{
-	"PUT": &Route{
-		Children: Routes{
-			"schemas": &Route{
-				Child: &Route{
-					Param:       "schema",
-					HandlerFunc: exampleHandler,
-				},
-			},
-		},
-	},
-	"DELETE": &Route{
-		Children: Routes{
-			"schemas": &Route{
-				Child: &Route{
-					Param:       "schema",
-					HandlerFunc: exampleHandler,
-				},
-			},
-		},
-	},
-	"PATCH": &Route{
-		Children: Routes{
-			"schemas": &Route{
-				Child: &Route{
-					Param:       "schema",
-					HandlerFunc: exampleHandler,
-				},
-			},
-		},
-	},
-	"GET": &Route{
-		Children: Routes{
-			"schemas": &Route{
-				Child: &Route{
-					Param:       "schema",
-					HandlerFunc: exampleHandler,
-					Children: Routes{
-						"archives": &Route{
-							Child: &Route{
-								Param: "year",
-								Check: IsYear,
-								Child: &Route{
-									Param: "month",
-									Check: IsMonth,
-									Child: &Route{
-										Param:       "day",
-										Check:       IsDay,
-										HandlerFunc: exampleHandler,
-									},
-								},
-							},
-						},
+var routes = &Router{
+	Routes: Routes{
+		"PATCH": &Route{
+			Children: Routes{
+				"schemas": &Route{
+					Child: &Route{
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
 					},
 				},
 			},
-			"testing/hello/world": &Route{
-				HandlerFunc: exampleHandler,
-			},
-			"/": &Route{
-				HandlerFunc: exampleHandler,
-			},
-			"nofunc": &Route{
-				Child: &Route{
-					Param: "a",
+		},
+		"POST": &Route{
+			Children: Routes{
+				"schemas": &Route{
 					Child: &Route{
-						Param: "b",
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
+					},
+				},
+			},
+		},
+		"PUT": &Route{
+			Children: Routes{
+				"schemas": &Route{
+					Child: &Route{
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
+					},
+				},
+			},
+		},
+		"GET": &Route{
+			Children: Routes{
+				"testing/hello/world": &Route{
+					HandlerFunc: exampleHandler,
+				},
+				"/": &Route{
+					HandlerFunc: exampleHandler,
+				},
+				"nofunc": &Route{
+					Child: &Route{
+						Param: "a",
 						Child: &Route{
-							Param: "c",
+							Param: "b",
 							Child: &Route{
-								Param: "d",
+								Param: "c",
 								Child: &Route{
-									Param: "e",
+									Param: "d",
 									Child: &Route{
-										Param: "f",
+										Param: "e",
 										Child: &Route{
-											Param: "g",
+											Param: "f",
 											Child: &Route{
-												Param: "h",
+												Param: "g",
 												Child: &Route{
-													Param: "i",
+													Param: "h",
 													Child: &Route{
-														Param: "j",
+														Param: "i",
 														Child: &Route{
-															Param: "k",
+															Param: "j",
 															Child: &Route{
-																Param: "l",
+																Param: "k",
 																Child: &Route{
-																	Param: "m",
+																	Param: "l",
 																	Child: &Route{
-																		Param: "n",
+																		Param: "m",
 																		Child: &Route{
-																			Param: "o",
+																			Param: "n",
 																			Child: &Route{
-																				Param: "p",
+																				Param: "o",
 																				Child: &Route{
-																					Param: "q",
+																					Param: "p",
 																					Child: &Route{
-																						Param: "r",
+																						Param: "q",
 																						Child: &Route{
-																							Param: "s",
+																							Param: "r",
 																							Child: &Route{
-																								Param: "t",
+																								Param: "s",
 																								Child: &Route{
-																									Param:       "u",
-																									HandlerFunc: exampleHandler,
+																									Param: "t",
+																									Child: &Route{
+																										Param:       "u",
+																										HandlerFunc: exampleHandler,
+																									},
 																								},
 																							},
 																						},
@@ -127,20 +106,48 @@ var routes = Routes{
 						},
 					},
 				},
-			},
-			"static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u": &Route{
-				HandlerFunc: exampleHandler,
-			},
-		},
-	},
-	"POST": &Route{
-		Children: Routes{
-			"schemas": &Route{
-				Child: &Route{
-					Param:       "schema",
+				"static/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u": &Route{
 					HandlerFunc: exampleHandler,
+				},
+				"schemas": &Route{
+					Child: &Route{
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
+						Children: Routes{
+							"archives": &Route{
+								Child: &Route{
+									Param: "year",
+									Check: IsYear,
+									Child: &Route{
+										Param: "month",
+										Check: IsMonth,
+										Child: &Route{
+											Param:       "day",
+											Check:       IsDay,
+											HandlerFunc: exampleHandler,
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
+		"DELETE": &Route{
+			Children: Routes{
+				"schemas": &Route{
+					Child: &Route{
+						Param:       "schema",
+						HandlerFunc: exampleHandler,
+					},
+				},
+			},
+		},
+	},
+	Validators: Validators{
+		"$year":  IsYear,
+		"$month": IsMonth,
+		"$day":   IsDay,
 	},
 }
