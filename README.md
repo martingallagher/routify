@@ -38,11 +38,11 @@ params:
 # Traditional Routing
 ```go
 r := &Router{}
-r.AddValidator("$year", router.IsYear)
-r.AddValidator("$month", router.IsMonth)
-r.AddValidator("$day", router.IsDay)
+r.AddValidator(":year", router.IsYear)
+r.AddValidator(":month", router.IsMonth)
+r.AddValidator(":day", router.IsDay)
 
-if err := r.Add("GET", "blog/archives/$year/$month/$day", blogArchivesHandler); err != nil {
+if err := r.Add("GET", "blog/archives/:year/:month/:day", blogArchivesHandler); err != nil {
 	// Handle error
 }
 ```
