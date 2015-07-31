@@ -87,6 +87,7 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 	var p Params
 
 	for {
+		// Early exit for optimized paths
 		if v, exists := route.Children[u]; exists {
 			if v.HandlerFunc != nil {
 				return v.HandlerFunc, p, nil

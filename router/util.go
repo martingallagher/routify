@@ -42,6 +42,12 @@ func IsDay(s string) bool {
 }
 
 func staticPath(p []string) (string, int) {
+	for _, v := range p {
+		if v == "" || v[0] == ':' || v[0] == '$' {
+			return p[0], 0
+		}
+	}
+
 	s := ""
 	c := -1
 
