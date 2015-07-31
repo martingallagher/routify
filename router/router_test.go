@@ -25,42 +25,35 @@ const (
 	longParam  = "/nofunc/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u"
 )
 
+var testData = []struct{ method, route, url, param, value string }{
+	{"GET", "/schemas/:schema/archives/:year/:month/:day", shortParam, "year", "2015"},
+	{"POST", "/authorizations/", "/authorizations/", "", ""},
+	{"POST", "/authorizations/:id", "/authorizations/123", "id", "123"},
+	{"GET", "/repos/$owner/$repo/events", "/repos/1/2/events", "owner", "1"},
+}
+
 func TestRuntimeRouter(t *testing.T) {
 	r := &Router{}
 	r.AddValidator(":year", IsYear)
 	r.AddValidator(":month", IsMonth)
 	r.AddValidator(":day", IsDay)
 
-	if err := r.Add("GET", "/schemas/:schema/archives/:year/:month/:day", exampleHandler); err != nil {
-		t.Fatal(err)
-	} else if err = r.Add("POST", "/authorizations/", exampleHandler); err != nil {
-		t.Fatal(err)
-	} else if err = r.Add("POST", "/authorizations/:id", exampleHandler); err != nil {
-		t.Fatal(err)
-	}
+	for _, c := range testData {
+		if err := r.Add(c.method, c.route, exampleHandler); err != nil {
+			t.Fatal(err)
+		}
 
-	req, err := http.NewRequest("GET", shortParam, nil)
+		req, err := http.NewRequest(c.method, c.url, nil)
 
-	if err != nil {
-		t.Fatal(err)
-	} else if _, p, err := r.Get(req); err != nil {
-		t.Fatal(err)
-	} else if v, err := p.GetUint("year"); err != nil {
-		t.Fatal(err)
-	} else if v != 2015 {
-		t.Fatal("unexpected value")
-	}
-
-	req, err = http.NewRequest("POST", "/authorizations/123", nil)
-
-	if err != nil {
-		t.Fatal(err)
-	} else if _, p, err := r.Get(req); err != nil {
-		t.Fatal(err)
-	} else if v, err := p.GetUint("id"); err != nil {
-		t.Fatal(err)
-	} else if v != 123 {
-		t.Fatal("unexpected value")
+		if err != nil {
+			t.Fatal(err)
+		} else if h, p, err := r.Get(req); err != nil {
+			t.Fatal(err)
+		} else if h == nil {
+			t.Fatal("nil handler")
+		} else if c.param != "" && p.Get(c.param) != c.value {
+			t.Fatal("unexpected value")
+		}
 	}
 }
 
