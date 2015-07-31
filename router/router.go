@@ -71,9 +71,9 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 		}
 
 		return nil, nil, ErrRouteNotFound
-	} else if u[0] == '/' {
-		u = u[1:]
 	}
+
+	u = stripSlashes(u)
 
 	// Exit early for full static match
 	if v, exists := route.Children[u]; exists {
@@ -142,17 +142,7 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 	var p []string
 
 	if u != "/" {
-		if u[0] == '/' {
-			u = u[1:]
-		}
-
-		l := len(u) - 1
-
-		if u[l] == '/' {
-			u = u[:l]
-		}
-
-		p = strings.Split(u, "/")
+		p = strings.Split(stripSlashes(u), "/")
 	} else {
 		p = []string{"/"}
 	}

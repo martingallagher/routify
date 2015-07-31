@@ -60,3 +60,24 @@ func staticPath(p []string) (string, int) {
 
 	return s, c
 }
+
+func stripSlashes(s string) string {
+	l := len(s) - 1
+
+	if l < 1 {
+		return ""
+	}
+
+	// Head
+	if s[0] == '/' {
+		l--
+		s = s[1:]
+	}
+
+	// Tail
+	if l > 1 && s[l] == '/' {
+		s = s[:l]
+	}
+
+	return s
+}
