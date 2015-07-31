@@ -87,6 +87,16 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 	var p Params
 
 	for {
+		if v, exists := route.Children[u]; exists {
+			if v.HandlerFunc != nil {
+				return v.HandlerFunc, p, nil
+			}
+
+			route = v
+
+			continue
+		}
+
 		s := u
 		i := strings.IndexByte(u, '/')
 

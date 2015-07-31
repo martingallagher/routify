@@ -30,6 +30,7 @@ var testData = []struct{ method, route, url, param, value string }{
 	{"POST", "/authorizations/", "/authorizations/", "", ""},
 	{"POST", "/authorizations/:id", "/authorizations/123", "id", "123"},
 	{"GET", "/repos/$owner/$repo/events", "/repos/1/2/events", "owner", "1"},
+	{"GET", "/users/:user/received_events/public", "/users/1/received_events/public", "user", "1"},
 }
 
 func TestRuntimeRouter(t *testing.T) {
