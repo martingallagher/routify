@@ -104,13 +104,13 @@ func (r *Router) Get(req *http.Request) (HandlerFunc, Params, error) {
 			}
 
 			p = append(p, param{route.Param, s})
-
-			if i == -1 {
-				break
-			}
 		} else if route, exists = route.Children[s]; !exists {
 			// Static
 			return nil, nil, ErrRouteNotFound
+		}
+
+		if i == -1 {
+			break
 		}
 	}
 
