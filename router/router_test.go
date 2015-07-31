@@ -33,7 +33,7 @@ func TestRuntimeRouter(t *testing.T) {
 
 	if err := r.Add("GET", "/schemas/:schema/archives/:year/:month/:day", exampleHandler); err != nil {
 		t.Fatal(err)
-	} else if err = r.Add("POST", "/authorizations", exampleHandler); err != nil {
+	} else if err = r.Add("POST", "/authorizations/", exampleHandler); err != nil {
 		t.Fatal(err)
 	} else if err = r.Add("POST", "/authorizations/:id", exampleHandler); err != nil {
 		t.Fatal(err)

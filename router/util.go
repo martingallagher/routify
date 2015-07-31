@@ -46,7 +46,7 @@ func staticPath(p []string) (string, int) {
 	c := -1
 
 	for i, v := range p {
-		if v[0] == ':' || v[0] == '$' {
+		if v == "" || v[0] == ':' || v[0] == '$' {
 			break
 		}
 

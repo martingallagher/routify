@@ -146,6 +146,12 @@ func (r *Router) Add(m, u string, h HandlerFunc) error {
 			u = u[1:]
 		}
 
+		l := len(u) - 1
+
+		if u[l] == '/' {
+			u = u[:l]
+		}
+
 		p = strings.Split(u, "/")
 	} else {
 		p = []string{"/"}
